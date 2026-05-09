@@ -9,7 +9,7 @@ products = [
     {
         "name": "Amazon Mobile Deals",
         "url": "https://www.amazon.in/s?k=smartphone+under+5000",
-        "target_price": 5000
+        "target_price": 50000
     }
 ]
 

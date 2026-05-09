@@ -10,13 +10,13 @@ products = [
     {
         "name": "Amazon Phones Under 5K",
         "url": "https://www.amazon.in/s?k=smartphone+under+5000",
-        "target_price": 50000
+        "target_price": 5000
     },
 
     {
         "name": "Flipkart Phones Under 5K",
         "url": "https://www.flipkart.com/search?q=smartphone+under+5000",
-        "target_price": 50000
+        "target_price": 5000
     }
 
 ]

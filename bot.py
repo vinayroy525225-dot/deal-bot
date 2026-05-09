@@ -8,15 +8,21 @@ CHAT_ID = "5044500645"
 products = [
 
     {
-        "name": "Amazon Phones Under 5K",
-        "url": "https://www.amazon.in/s?k=smartphone+under+5000",
-        "target_price": 5000
+        "name": "OPPO K13 5G",
+        "url": "https://www.amazon.in/s?k=oppo+k13+5g",
+        "target_price": 8000
     },
 
     {
-        "name": "Flipkart Phones Under 5K",
-        "url": "https://www.flipkart.com/search?q=smartphone+under+5000",
-        "target_price": 5000
+        "name": "Samsung Galaxy",
+        "url": "https://www.amazon.in/s?k=samsung+5g+mobile",
+        "target_price": 7000
+    },
+
+    {
+        "name": "Redmi Note",
+        "url": "https://www.flipkart.com/search?q=redmi+note",
+        "target_price": 7500
     }
 
 ]
@@ -28,6 +34,8 @@ headers = {
         "Chrome/120 Safari/537.36"
     )
 }
+
+sent_deals = set()
 
 def send_telegram(message):
 
@@ -44,7 +52,7 @@ def send_telegram(message):
 
 while True:
 
-    print("Checking Deals...\n")
+    print("Checking Premium Phone Deals...\n")
 
     for product in products:
 
@@ -66,8 +74,6 @@ while True:
                 class_="a-price-whole"
             )
 
-            found = False
-
             for p in prices:
 
                 try:
@@ -79,32 +85,35 @@ while True:
 
                     print(
                         product["name"],
+                        "₹",
                         current_price
                     )
 
                     if current_price <= product["target_price"]:
 
-                        found = True
-
-                        msg = (
-                            f"🔥 PHONE DEAL FOUND 🔥\n\n"
-                            f"{product['name']}\n"
-                            f"Price: ₹{current_price}\n"
-                            f"Target: ₹{product['target_price']}\n\n"
-                            f"{product['url']}"
+                        deal_key = (
+                            f"{product['name']}_{current_price}"
                         )
 
-                        send_telegram(msg)
+                        if deal_key not in sent_deals:
 
-                        print("ALERT SENT\n")
+                            msg = (
+                                f"🔥 CRAZY DEAL FOUND 🔥\n\n"
+                                f"{product['name']}\n\n"
+                                f"Current Price: ₹{current_price}\n"
+                                f"Target Price: ₹{product['target_price']}\n\n"
+                                f"BUY FAST:\n"
+                                f"{product['url']}"
+                            )
 
-                        break
+                            send_telegram(msg)
+
+                            sent_deals.add(deal_key)
+
+                            print("ALERT SENT\n")
 
                 except:
                     pass
-
-            if not found:
-                print("No Cheap Deal Found\n")
 
         except Exception as e:
             print("ERROR:", e)

@@ -6,32 +6,41 @@ BOT_TOKEN = "8622451849:AAFl4jjC2mr5rf2671SA3F4g3vIFcqEYwGs"
 CHAT_ID = "5044500645"
 
 products = [
+
     {
-        "name": "Phone Deals",
+        "name": "Amazon Phones Under 5K",
         "url": "https://www.amazon.in/s?k=smartphone+under+5000",
         "target_price": 50000
+    },
+
+    {
+        "name": "Flipkart Phones Under 5K",
+        "url": "https://www.flipkart.com/search?q=smartphone+under+5000",
+        "target_price": 50000
     }
+
 ]
 
 headers = {
     "User-Agent": (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
         "AppleWebKit/537.36 (KHTML, like Gecko) "
-        "Chrome/120.0 Safari/537.36"
-    ),
-    "Accept-Language": "en-US,en;q=0.9"
+        "Chrome/120 Safari/537.36"
+    )
 }
 
 def send_telegram(message):
 
-    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+    telegram_url = (
+        f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+    )
 
     data = {
         "chat_id": CHAT_ID,
         "text": message
     }
 
-    requests.post(url, data=data)
+    requests.post(telegram_url, data=data)
 
 while True:
 
@@ -43,12 +52,19 @@ while True:
 
             response = requests.get(
                 product["url"],
-                headers=headers
+                headers=headers,
+                timeout=15
             )
 
-            soup = BeautifulSoup(response.text, "html.parser")
+            soup = BeautifulSoup(
+                response.text,
+                "html.parser"
+            )
 
-            prices = soup.find_all("span", class_="a-price-whole")
+            prices = soup.find_all(
+                "span",
+                class_="a-price-whole"
+            )
 
             found = False
 
@@ -57,17 +73,22 @@ while True:
                 try:
 
                     current_price = int(
-                        p.text.replace(",", "").replace(".", "")
+                        p.text.replace(",", "")
+                              .replace(".", "")
                     )
 
-                    print("PRICE FOUND:", current_price)
+                    print(
+                        product["name"],
+                        current_price
+                    )
 
                     if current_price <= product["target_price"]:
 
                         found = True
 
                         msg = (
-                            f"🔥 DEAL ALERT 🔥\n\n"
+                            f"🔥 PHONE DEAL FOUND 🔥\n\n"
+                            f"{product['name']}\n"
                             f"Price: ₹{current_price}\n"
                             f"Target: ₹{product['target_price']}\n\n"
                             f"{product['url']}"
@@ -75,7 +96,7 @@ while True:
 
                         send_telegram(msg)
 
-                        print("TELEGRAM ALERT SENT\n")
+                        print("ALERT SENT\n")
 
                         break
 
@@ -83,7 +104,7 @@ while True:
                     pass
 
             if not found:
-                print("No Deal Found\n")
+                print("No Cheap Deal Found\n")
 
         except Exception as e:
             print("ERROR:", e)

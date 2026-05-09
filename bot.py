@@ -5,51 +5,72 @@ import time
 BOT_TOKEN = "8622451849:AAFl4jjC2mr5rf2671SA3F4g3vIFcqEYwGs"
 CHAT_ID = "5044500645"
 
-URL = "https://www.amazon.in/Oppo-K13-5G-Prism-Storage/dp/B0F8W2D943/522-6651414-9906254?pd_rd_w=cFCWN&content-id=amzn1.sym.d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_p=d1406b44-aa69-47e4-9270-f613e12d52dc&pf_rd_r=F94RZH9YNVERVG9K292M&pd_rd_wg=kUT2o&pd_rd_r=33bea165-9c6e-4265-8fef-87d9a69fa1e2&pd_rd_i=B0F8W2D943&psc=1"
-
-TARGET_PRICE = 18500
+products = [
+    {
+        "name": "Amazon Mobile Deals",
+        "url": "https://www.amazon.in/s?k=smartphone+under+5000",
+        "target_price": 5000
+    }
+]
 
 headers = {
     "User-Agent": "Mozilla/5.0"
 }
 
+def send_telegram_message(message):
+
+    send_url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+
+    data = {
+        "chat_id": CHAT_ID,
+        "text": message
+    }
+
+    requests.post(send_url, data=data)
+
 while True:
 
-    print("Checking Price...")
+    print("Checking Deals...")
 
-    page = requests.get(URL, headers=headers)
+    for product in products:
 
-    soup = BeautifulSoup(page.content, "html.parser")
+        try:
 
-    price = soup.find("span", class_="a-price-whole")
+            page = requests.get(product["url"], headers=headers)
 
-    if price:
+            soup = BeautifulSoup(page.content, "html.parser")
 
-        current_price = int(price.text.replace(",", "").replace(".", ""))
+            price_tag = soup.find("span", class_="a-price-whole")
 
-        print("CURRENT PRICE:", current_price)
+            if price_tag:
 
-        if current_price <= TARGET_PRICE:
+                current_price = int(
+                    price_tag.text.replace(",", "").replace(".", "")
+                )
 
-            message = f"🔥 Deal Alert!\nPrice: ₹{current_price}\n{URL}"
+                print("CURRENT PRICE:", current_price)
 
-            send_url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+                if current_price <= product["target_price"]:
 
-            data = {
-                "chat_id": CHAT_ID,
-                "text": message
-            }
+                    message = (
+                        f"🔥 DEAL ALERT 🔥\n\n"
+                        f"Price: ₹{current_price}\n\n"
+                        f"{product['url']}"
+                    )
 
-            requests.post(send_url, data=data)
+                    send_telegram_message(message)
 
-            print("TELEGRAM ALERT SENT")
+                    print("TELEGRAM ALERT SENT")
 
-        else:
-            print("Price Still High")
+                else:
+                    print("Price Still High")
 
-    else:
-        print("Price Not Found")
+            else:
+                print("Price Not Found")
 
-    print("Checking again in 60 sec...\n")
+        except Exception as e:
+            print("ERROR:", e)
+
+    print("Checking again in 60 seconds...\n")
 
     time.sleep(60)
